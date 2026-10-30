@@ -1,0 +1,69 @@
+{
+  "name": "spotify-turntable",
+  "version": "0.1.0",
+  "description": "A live record-player card for whatever you're playing on Spotify. Drop in a React component, add your credentials, done.",
+  "keywords": [
+    "spotify",
+    "now-playing",
+    "react",
+    "turntable",
+    "portfolio",
+    "widget",
+    "vite",
+    "nextjs"
+  ],
+  "license": "MIT",
+  "author": "Felix Arbucias",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felixArbucias/portfolio.git",
+    "directory": "packages/spotify-turntable"
+  },
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": "./src/client/index.js",
+    "./server": "./src/server/index.js",
+    "./vite": "./src/vite.js",
+    "./style.css": "./src/style.css",
+    "./package.json": "./package.json"
+  },
+  "main": "./src/client/index.js",
+  "bin": {
+    "spotify-turntable": "bin/spotify-turntable.mjs"
+  },
+  "files": [
+    "src",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "auth": "node bin/spotify-turntable.mjs auth",
+    "dev": "vite example",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "vite": ">=4"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^5.4.1"
+  }
+}

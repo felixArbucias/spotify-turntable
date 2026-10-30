@@ -1,0 +1,369 @@
+/*
+ * spotify-turntable — import once: import "spotify-turntable/style.css";
+ * Theme it by overriding these on .deck (or any ancestor via your own selector):
+ *   --deck-card, --deck-edge, --deck-ink, --deck-soft, --deck-line, --deck-label, --deck-ease, --deck-vinyl
+ */
+/* <Turntable floating /> pins the card to the top-right corner. */
+.deck-slot {
+  position: fixed;
+  top: clamp(12px, 1.8vw, 24px);
+  right: clamp(12px, 1.8vw, 24px);
+  z-index: 30;
+  pointer-events: none;
+}
+
+.deck {
+  --deck-card: #fffdf9;
+  --deck-edge: #ece7df;
+  --deck-ink: #1a1a1a;
+  --deck-soft: #6b6b6b;
+  --deck-line: #e7e3dc;
+  --deck-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --deck-label: #e9dfcf;
+  --deck-vinyl: 150px;
+  position: relative;
+  pointer-events: auto;
+  color: var(--deck-ink);
+  background: var(--deck-card);
+  border: 1px solid var(--deck-edge);
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgba(60, 45, 25, 0.05),
+    0 10px 30px -12px rgba(60, 45, 25, 0.18);
+  transition: box-shadow 300ms var(--deck-ease);
+}
+.deck:has(.deck-link:hover) {
+  box-shadow:
+    0 1px 2px rgba(60, 45, 25, 0.06),
+    0 16px 36px -14px rgba(60, 45, 25, 0.24);
+}
+
+.deck-link {
+  display: grid;
+  gap: 12px;
+  width: calc(var(--deck-vinyl) * 1.2);
+  padding: 14px 14px 13px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: inherit;
+}
+.deck-link:focus-visible,
+.deck-play:focus-visible,
+.deck-pop-close:focus-visible,
+.deck-pop-link:focus-visible {
+  outline: 2px solid var(--deck-ink);
+  outline-offset: 2px;
+}
+
+/* Vinyl */
+.deck-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.16));
+}
+.deck-record {
+  transform-box: view-box;
+  transform-origin: 52px 52px;
+  animation: deck-spin 1.8s linear infinite;
+  animation-play-state: paused;
+}
+.is-moving .deck-record {
+  animation-play-state: running;
+}
+.deck-record.is-empty {
+  opacity: 0.25;
+}
+.deck-arm {
+  transform-box: view-box;
+  transform-origin: 108px 12px;
+  transform: rotate(-16deg);
+  transition: transform 900ms var(--deck-ease);
+}
+.is-moving .deck-arm {
+  transform: rotate(0deg);
+}
+@keyframes deck-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ticket */
+.deck-ticket {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.has-play .deck-ticket {
+  padding-right: 34px;
+}
+.deck-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-bottom: 3px;
+  font-size: 10px;
+  font-weight: 620;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--deck-soft);
+}
+.deck-status-text,
+.deck-title,
+.deck-artist {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.deck-led {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #cfc9bf;
+}
+.is-playing .deck-led {
+  background: #2f9e44;
+  animation: deck-pulse 1.6s ease-in-out infinite;
+}
+.is-rotation .deck-led {
+  background: #d39b2a;
+  animation: deck-pulse 2.4s ease-in-out infinite;
+}
+.is-offline .deck-led {
+  background: #d1584b;
+}
+@keyframes deck-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+.deck-title {
+  font-size: 13px;
+  font-weight: 650;
+}
+.deck-artist {
+  color: var(--deck-soft);
+}
+.deck-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--deck-soft);
+}
+.deck-bar {
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--deck-line);
+  overflow: hidden;
+}
+.deck-bar span {
+  display: block;
+  height: 100%;
+  background: var(--deck-ink);
+  transform-origin: left;
+  transition: transform 1s linear;
+}
+.deck-clock {
+  flex: none;
+}
+
+/* Play button */
+.deck-play {
+  position: absolute;
+  right: 12px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--deck-edge);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--deck-ink);
+  cursor: pointer;
+  transition:
+    background 200ms,
+    color 200ms,
+    transform 200ms var(--deck-ease);
+}
+.deck-play svg {
+  width: 12px;
+  height: 12px;
+}
+.deck-play:hover,
+.deck-play[aria-expanded="true"] {
+  background: var(--deck-ink);
+  color: var(--deck-card);
+  border-color: var(--deck-ink);
+}
+.deck-play:active {
+  transform: scale(0.94);
+}
+
+/* Embed popover */
+.deck-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 300px;
+  padding: 10px;
+  background: var(--deck-card);
+  border: 1px solid var(--deck-edge);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px -16px rgba(60, 45, 25, 0.3);
+  transform-origin: top right;
+  animation: deck-pop-in 220ms var(--deck-ease);
+}
+@keyframes deck-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+.deck-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px 8px 4px;
+}
+.deck-pop-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 620;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--deck-soft);
+}
+.deck-pop-close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--deck-soft);
+  cursor: pointer;
+}
+.deck-pop-close:hover {
+  background: var(--deck-line);
+  color: var(--deck-ink);
+}
+.deck-pop-close svg {
+  width: 12px;
+  height: 12px;
+}
+.deck-embed {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  background: var(--deck-line);
+}
+.deck-pop-link {
+  display: inline-block;
+  margin: 8px 4px 2px;
+  font-size: 12px;
+  font-weight: 560;
+  color: var(--deck-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--deck-line);
+  text-underline-offset: 3px;
+}
+.deck-pop-link:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Tablet: slightly smaller card */
+@media (max-width: 1100px) {
+  .deck {
+    --deck-vinyl: 120px;
+  }
+}
+
+/* Mobile: compact horizontal pill so it never covers the board */
+@media (max-width: 719.98px) {
+  .deck-slot {
+    top: 10px;
+    right: 10px;
+  }
+  .deck {
+    border-radius: 999px;
+  }
+  .deck-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: auto;
+    max-width: min(64vw, 260px);
+    padding: 5px 14px 5px 5px;
+  }
+  .has-play .deck-link {
+    padding-right: 42px;
+  }
+  .deck-svg {
+    flex: none;
+    width: 50px;
+    margin-right: -8px; /* trim the tonearm's empty column */
+    filter: none;
+  }
+  .deck-arm {
+    display: none;
+  }
+  .has-play .deck-ticket {
+    padding-right: 0;
+  }
+  .deck-status {
+    margin-bottom: 0;
+    font-size: 9px;
+  }
+  .deck-artist:not(.deck-note),
+  .deck-time {
+    display: none;
+  }
+  .deck-title {
+    font-size: 12px;
+  }
+  .deck-play {
+    top: 50%;
+    bottom: auto;
+    right: 6px;
+    margin-top: -14px;
+  }
+  .deck-pop {
+    width: min(92vw, 320px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck,
+  .deck-arm,
+  .deck-play,
+  .deck-bar span {
+    transition: none;
+  }
+  .deck-record,
+  .deck-led,
+  .deck-pop {
+    animation: none !important;
+  }
+}
