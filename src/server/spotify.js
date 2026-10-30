@@ -236,12 +236,38 @@ export function mapItem(item, progressMs = 0) {
   };
 }
 
-/** Deterministic "radio" pick: every visitor at the same instant gets the same track + offset. */
-export function pickRotation(tracks, now = Date.now(), epoch = ROTATION_EPOCH) {
-  const list = (tracks || []).filter((t) => t && t.durationMs > 0);
+export function isTruthy(value) {
+  return /^(1|true|yes|on)$/i.test(String(value ?? "").trim());
+}
+
+// Seeded Fisher–Yates (mulberry32), so a shuffle is the same on every server and every visitor.
+export function seededShuffle(list, seed) {
+  const out = list.slice();
+  let s = seed >>> 0;
+  const rand = () => {
+    s = (s + 0x6d2b79f5) >>> 0;
+    let x = Math.imul(s ^ (s >>> 15), 1 | s);
+    x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/**
+ * Deterministic "radio" pick: every visitor at the same instant gets the same track + offset.
+ * With `shuffle`, each full pass through the list plays in a fresh (but shared) random order.
+ */
+export function pickRotation(tracks, now = Date.now(), epoch = ROTATION_EPOCH, { shuffle = false } = {}) {
+  let list = (tracks || []).filter((t) => t && t.durationMs > 0);
   const total = list.reduce((sum, t) => sum + t.durationMs, 0);
   if (!total) return null;
-  let t = (((now - epoch) % total) + total) % total;
+  const elapsed = now - epoch;
+  if (shuffle) list = seededShuffle(list, Math.floor(elapsed / total) + 1);
+  let t = ((elapsed % total) + total) % total;
   for (const track of list) {
     if (t < track.durationMs) return { ...track, progressMs: Math.floor(t) };
     t -= track.durationMs;
@@ -335,7 +361,7 @@ async function loadPlaylist(creds, id) {
   };
 }
 
-async function getRotation(creds, id) {
+async function getRotation(creds, id, shuffle) {
   const key = `${creds.key}:${id}`;
   const hasValue = playlistCache.key === key && playlistCache.value;
   // After a failure with nothing cached, wait a few minutes before asking Spotify again.
@@ -344,7 +370,7 @@ async function getRotation(creds, id) {
   }
   try {
     const { value } = await cached(playlistCache, key, PLAYLIST_TTL_MS, () => loadPlaylist(creds, id));
-    const track = pickRotation(value.tracks);
+    const track = pickRotation(value.tracks, Date.now(), ROTATION_EPOCH, { shuffle });
     return track ? { track, playlist: value.playlist } : null;
   } catch (err) {
     Object.assign(playlistCache, { key, failedAt: Date.now(), error: err });
@@ -420,7 +446,7 @@ export async function getNowPlaying(env = process.env, { demo = null } = {}) {
   let rotationError = null;
   if (playlistId) {
     try {
-      const rotation = await getRotation(creds, playlistId);
+      const rotation = await getRotation(creds, playlistId, isTruthy(env?.SPOTIFY_SHUFFLE));
       if (rotation) return respond("rotation", { ...rotation, stale });
     } catch (err) {
       rotationError = err;

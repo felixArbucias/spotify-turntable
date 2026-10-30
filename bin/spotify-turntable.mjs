@@ -136,6 +136,7 @@ async function main() {
   let clientId = env.SPOTIFY_CLIENT_ID;
   let clientSecret = env.SPOTIFY_CLIENT_SECRET;
   let playlist = env.SPOTIFY_FALLBACK_PLAYLIST;
+  let shuffle = env.SPOTIFY_SHUFFLE;
 
   console.log("spotify-turntable · connect your Spotify account\n");
   const rl = createInterface({ input: stdin, output: stdout });
@@ -154,6 +155,9 @@ async function main() {
       console.log("\nWhen you're not playing anything, the turntable can play from a rotation like a radio station.");
       playlist = (await rl.question("Paste a playlist link, type \"liked\" for your Liked Songs, or press Enter to skip: ")).trim();
     }
+    if (playlist && shuffle === undefined && stdin.isTTY) {
+      shuffle = /^n/i.test((await rl.question("Shuffle the rotation? (Y/n): ")).trim()) ? "false" : "true";
+    }
   } finally {
     rl.close();
   }
@@ -161,6 +165,7 @@ async function main() {
   const refreshToken = await authorize(clientId, clientSecret);
   const values = { SPOTIFY_CLIENT_ID: clientId, SPOTIFY_CLIENT_SECRET: clientSecret, SPOTIFY_REFRESH_TOKEN: refreshToken };
   if (playlist) values.SPOTIFY_FALLBACK_PLAYLIST = playlist;
+  if (playlist && shuffle) values.SPOTIFY_SHUFFLE = shuffle;
 
   if (PRINT_ONLY) {
     console.log("\nConnected. Add these to your environment (keep them secret):\n");

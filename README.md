@@ -49,9 +49,10 @@ SPOTIFY_CLIENT_ID=…
 SPOTIFY_CLIENT_SECRET=…
 SPOTIFY_REFRESH_TOKEN=…
 SPOTIFY_FALLBACK_PLAYLIST=liked   # optional, see "House rotation"
+SPOTIFY_SHUFFLE=true              # optional, shuffle the rotation
 ```
 
-Make sure `.env.local` is in your `.gitignore` (the command warns you if it isn't). When you deploy, add the same four values as environment variables on your host (Vercel, Netlify, …).
+Make sure `.env.local` is in your `.gitignore` (the command warns you if it isn't). When you deploy, add the same values as environment variables on your host (Vercel, Netlify, …).
 
 > New Spotify apps run in development mode. That works for your own account, which is all a personal site needs, but Spotify currently requires the app owner to have Premium.
 
@@ -155,6 +156,8 @@ Set `SPOTIFY_FALLBACK_PLAYLIST` to keep the record spinning while you're offline
 | `liked` | Rotates through your **Liked Songs**. Visitors can play each song, but Liked Songs has no public playlist link. |
 | a playlist link or ID | Rotates through that playlist and offers an "Open the whole rotation" link. The playlist must belong to (or be collaborative with) the connected account. |
 | empty | Shows what you paused on, or the last song you played. |
+
+The rotation plays in order. Set `SPOTIFY_SHUFFLE=true` to shuffle it: each pass through the list gets a new random order, and every visitor still hears the same song at the same moment.
 
 ## What the card shows
 

@@ -1,7 +1,7 @@
 // Run with: npm test  (mocks fetch; never talks to Spotify)
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
-import { getNowPlaying, pickRotation, parsePlaylistId, parseDemo, resetSpotifyCache, ROTATION_EPOCH } from "../src/server/spotify.js";
+import { getNowPlaying, pickRotation, parsePlaylistId, parseDemo, resetSpotifyCache, ROTATION_EPOCH, isTruthy } from "../src/server/spotify.js";
 
 const ENV = { SPOTIFY_CLIENT_ID: "id", SPOTIFY_CLIENT_SECRET: "secret", SPOTIFY_REFRESH_TOKEN: "refresh" };
 const PLAYLIST = "37i9dQZF1DXcBWIGoYBM5M";
@@ -271,6 +271,20 @@ test("pickRotation is deterministic and wraps like a radio", () => {
   assert.deepEqual(pickRotation(list, ROTATION_EPOCH + 150), { id: "b", durationMs: 200, progressMs: 50 });
   assert.deepEqual(pickRotation(list, ROTATION_EPOCH + 300 * 7 + 120), { id: "b", durationMs: 200, progressMs: 20 });
   assert.equal(pickRotation([], Date.now()), null);
+});
+
+test("shuffled rotation plays every track once per pass, in a shared order that changes each pass", () => {
+  const list = Array.from({ length: 12 }, (_, i) => ({ id: `t${i}`, durationMs: 100 }));
+  const pass = (n) => list.map((_, i) => pickRotation(list, ROTATION_EPOCH + n * 1200 + i * 100 + 5, ROTATION_EPOCH, { shuffle: true }).id);
+  const first = pass(0);
+  assert.deepEqual([...first].sort(), list.map((t) => t.id).sort());
+  assert.notDeepEqual(first, list.map((t) => t.id));
+  assert.deepEqual(pass(0), first);
+  assert.notDeepEqual(pass(1), first);
+  assert.equal(isTruthy("true"), true);
+  assert.equal(isTruthy("1"), true);
+  assert.equal(isTruthy(""), false);
+  assert.equal(isTruthy(undefined), false);
 });
 
 test("parsers", () => {

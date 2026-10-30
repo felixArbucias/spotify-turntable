@@ -1,6 +1,6 @@
 {
   "name": "spotify-turntable",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A live record-player card for whatever you're playing on Spotify. Drop in a React component, add your credentials, done.",
   "keywords": [
     "spotify",
