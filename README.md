@@ -13,8 +13,8 @@ Made for personal sites and portfolios. React on the front, any JavaScript serve
 ## Try it in two minutes
 
 ```bash
-git clone https://github.com/felixArbucias/portfolio
-cd portfolio/packages/spotify-turntable
+git clone https://github.com/felixArbucias/spotify-turntable
+cd spotify-turntable
 npm install
 npm run auth     # connect your Spotify account (walks you through it)
 npm run dev      # open the printed URL

@@ -16,9 +16,10 @@
   "author": "Felix Arbucias",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/felixArbucias/portfolio.git",
-    "directory": "packages/spotify-turntable"
+    "url": "git+https://github.com/felixArbucias/spotify-turntable.git"
   },
+  "homepage": "https://github.com/felixArbucias/spotify-turntable#readme",
+  "bugs": "https://github.com/felixArbucias/spotify-turntable/issues",
   "type": "module",
   "sideEffects": [
     "*.css"
